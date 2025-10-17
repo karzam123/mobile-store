@@ -14,5 +14,21 @@
     },
     "rating": 4,
     "tags": []
+  },
+  {
+    "id": 1760728160014,
+    "name": "Kar Zam",
+    "brand": "KD",
+    "price": 1234,
+    "category": "mobile",
+    "image": "D:\\photos\\FB_IMG_1679834743023.jpg",
+    "specifications": {
+      "ram": "8gb",
+      "storage": "Not specified",
+      "camera": "Not specified",
+      "battery": "Not specified"
+    },
+    "rating": 4,
+    "tags": []
   }
 ]
