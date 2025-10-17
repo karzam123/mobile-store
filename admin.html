@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Admin - Mobile Store</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .tab.active {
+            background: #4361ee;
+            color: white;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            background: #4361ee;
+            color: white;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .products-list {
+            margin-top: 20px;
+        }
+
+        .product-item {
+            background: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border-left: 4px solid #4361ee;
+        }
+
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .product-actions {
+            margin-top: 10px;
+        }
+
+        .product-actions button {
+            padding: 5px 10px;
+            margin-right: 5px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .edit-btn {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .notification {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            color: white;
+        }
+
+        .success {
+            background: #10b981;
+        }
+
+        .error {
+            background: #ef4444;
+        }
+
+        .json-preview {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Mobile Store - Admin</h1>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showSection('add-product')">Add Product</button>
+            <button class="tab" onclick="showSection('manage-products')">Manage Products</button>
+            <button class="tab" onclick="showSection('export')">Export JSON</button>
+        </div>
+
+        <!-- Add Product Section -->
+        <div id="add-product" class="section active">
+            <h2>Add New Product</h2>
+            <form id="product-form">
+                <div class="form-group">
+                    <label>Product Name *</label>
+                    <input type="text" id="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Brand *</label>
+                    <input type="text" id="brand" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Price (₹) *</label>
+                    <input type="number" id="price" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Image URL *</label>
+                    <input type="url" id="image" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Specifications</label>
+                    <div class="specs-grid">
+                        <input type="text" id="ram" placeholder="RAM">
+                        <input type="text" id="storage" placeholder="Storage">
+                        <input type="text" id="camera" placeholder="Camera">
+                        <input type="text" id="battery" placeholder="Battery">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Rating (0-5)</label>
+                    <input type="number" id="rating" min="0" max="5" step="0.1" value="4.0">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Add Product</button>
+                <button type="reset" class="btn">Clear Form</button>
+            </form>
+        </div>
+
+        <!-- Manage Products Section -->
+        <div id="manage-products" class="section">
+            <h2>Manage Products</h2>
+            <div class="form-group">
+                <input type="text" id="search" placeholder="Search products..." oninput="searchProducts(this.value)">
+            </div>
+            <div id="products-container">
+                <!-- Products will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Export Section -->
+        <div id="export" class="section">
+            <h2>Export Products</h2>
+            <button class="btn btn-success" onclick="downloadJSON()">Download products.json</button>
+            <button class="btn" onclick="loadCurrentData()">Reload Data</button>
+            
+            <div style="margin-top: 20px;">
+                <h3>Current Data Preview:</h3>
+                <pre id="json-preview" class="json-preview">Loading...</pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let products = [];
+
+        // Load current data on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            await loadCurrentData();
+            setupEventListeners();
+        });
+
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected section and activate tab
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function setupEventListeners() {
+            document.getElementById('product-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                addProduct();
+            });
+        }
+
+        async function loadCurrentData() {
+            try {
+                const response = await fetch('./data/products.json');
+                products = await response.json();
+                displayProducts();
+                updateJsonPreview();
+                showNotification('Data loaded successfully!', 'success');
+            } catch (error) {
+                showNotification('Error loading data: ' + error.message, 'error');
+                products = [];
+            }
+        }
+
+        function addProduct() {
+            try {
+                const newProduct = {
+                    id: Date.now(),
+                    name: document.getElementById('name').value.trim(),
+                    brand: document.getElementById('brand').value.trim(),
+                    price: parseFloat(document.getElementById('price').value),
+                    category: 'mobile',
+                    image: document.getElementById('image').value.trim(),
+                    specifications: {
+                        ram: document.getElementById('ram').value.trim() || 'Not specified',
+                        storage: document.getElementById('storage').value.trim() || 'Not specified',
+                        camera: document.getElementById('camera').value.trim() || 'Not specified',
+                        battery: document.getElementById('battery').value.trim() || 'Not specified'
+                    },
+                    rating: parseFloat(document.getElementById('rating').value) || 4.0,
+                    tags: []
+                };
+
+                // Validation
+                if (!newProduct.name || !newProduct.brand || !newProduct.price || !newProduct.image) {
+                    throw new Error('Please fill all required fields');
+                }
+
+                               products.push(newProduct);
+                document.getElementById('product-form').reset();
+                displayProducts();
+                updateJsonPreview();
+                
+                // AUTO-DOWNLOAD after adding product
+                autoSaveToFile();
+                
+            } catch (error) {
+                showNotification('Error: ' + error.message, 'error');
+            }
+        }
+
+        function displayProducts() {
+            const container = document.getElementById('products-container');
+            
+            if (products.length === 0) {
+                container.innerHTML = '<p>No products found. Add your first product!</p>';
+                return;
+            }
+
+            container.innerHTML = products.map(product => `
+                <div class="product-item">
+                    <div class="product-header">
+                        <strong>${product.name}</strong>
+                        <span>₹${product.price.toLocaleString()}</span>
+                    </div>
+                    <div>${product.brand} • ${product.specifications.ram} • ${product.specifications.storage}</div>
+                    <div class="product-actions">
+                        <button class="edit-btn" onclick="editProduct(${product.id})">Edit</button>
+                        <button class="delete-btn" onclick="deleteProduct(${product.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function searchProducts(query) {
+            if (!query) {
+                displayProducts();
+                return;
+            }
+
+            const filtered = products.filter(product => 
+                product.name.toLowerCase().includes(query.toLowerCase()) ||
+                product.brand.toLowerCase().includes(query.toLowerCase())
+            );
+
+            const container = document.getElementById('products-container');
+            container.innerHTML = filtered.map(product => `
+                <div class="product-item">
+                    <div class="product-header">
+                        <strong>${product.name}</strong>
+                        <span>₹${product.price.toLocaleString()}</span>
+                    </div>
+                    <div>${product.brand}</div>
+                </div>
+            `).join('');
+        }
+
+        function deleteProduct(productId) {
+            if (confirm('Delete this product?')) {
+                products = products.filter(p => p.id !== productId);
+                displayProducts();
+                updateJsonPreview();
+                autoSaveToFile(); // ADD THIS LINE
+                showNotification('Product deleted! JSON updated.', 'success');
+            }
+        }
+        function editProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                // Populate form
+                document.getElementById('name').value = product.name;
+                document.getElementById('brand').value = product.brand;
+                document.getElementById('price').value = product.price;
+                document.getElementById('image').value = product.image;
+                document.getElementById('ram').value = product.specifications.ram;
+                document.getElementById('storage').value = product.specifications.storage;
+                document.getElementById('camera').value = product.specifications.camera;
+                document.getElementById('battery').value = product.specifications.battery;
+                document.getElementById('rating').value = product.rating;
+                
+                // Remove from list (will re-add when submitted)
+                products = products.filter(p => p.id !== productId);
+                displayProducts();
+                
+                showSection('add-product');
+                showNotification('Editing: ' + product.name, 'success');
+            }
+        }
+
+        function updateJsonPreview() {
+            document.getElementById('json-preview').textContent = JSON.stringify(products, null, 2);
+        }
+
+        function downloadJSON() {
+            if (products.length === 0) {
+                showNotification('No products to download!', 'error');
+                return;
+            }
+
+            const dataStr = JSON.stringify(products, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'products.json';
+            link.click();
+            
+            URL.revokeObjectURL(url);
+            showNotification('JSON file downloaded!', 'success');
+        }
+
+        function showNotification(message, type) {
+            // Remove existing notifications
+            const existing = document.querySelector('.notification');
+            if (existing) existing.remove();
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.querySelector('.container').prepend(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+        function autoSaveToFile() {
+            if (products.length === 0) return;
+            
+            const dataStr = JSON.stringify(products, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'products.json';
+            link.click();
+            
+            URL.revokeObjectURL(url);
+            
+            // Show instruction
+            showNotification('JSON auto-downloaded! Replace data/products.json file and refresh main site.', 'success');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Test Website - Mobile Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: #f8fafc;
+            color: #1e293b;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #4361ee, #3a56d4);
+            color: white;
+            border-radius: 12px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 50px;
+            font-size: 16px;
+        }
+
+        .search-box button {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            background: #4361ee;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 34px;
+            height: 34px;
+            cursor: pointer;
+        }
+
+        .refresh-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-left: 15px;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .product-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .product-price {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #4361ee;
+        }
+
+        .product-brand {
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+
+        .product-specs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .spec {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .spec i {
+            color: #4361ee;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .stars {
+            color: #ffc107;
+        }
+
+        .rating-value {
+            font-weight: 600;
+        }
+
+        .tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: #eef2ff;
+            color: #4361ee;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            color: #64748b;
+        }
+
+        .error {
+            text-align: center;
+            padding: 40px;
+            background: #fee2e2;
+            color: #dc2626;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification.success {
+            background: #10b981;
+        }
+
+        .notification.error {
+            background: #ef4444;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📱 Mobile Store</h1>
+            <p class="subtitle">Products loaded from JSON file - No Database!</p>
+        </header>
+
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search mobiles...">
+                <button id="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            <button class="refresh-btn" id="refresh-btn">
+                <i class="fas fa-sync-alt"></i> Refresh Data
+            </button>
+        </div>
+
+        <div id="products-container">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i> Loading products from JSON file...
+            </div>
+        </div>
+
+        <footer>
+            <p>This website loads all product data from a static <code>products.json</code> file</p>
+            <p>No database required! 🎉</p>
+        </footer>
+    </div>
+
+    <script>
+        class ProductManager {
+            constructor() {
+                this.products = [];
+                this.init();
+            }
+
+            async init() {
+                this.setupEventListeners();
+                await this.loadProducts();
+            }
+
+            setupEventListeners() {
+                // Search functionality
+                document.getElementById('search-btn').addEventListener('click', () => {
+                    this.handleSearch();
+                });
+
+                document.getElementById('search-input').addEventListener('input', (e) => {
+                    if (e.target.value === '') {
+                        this.displayProducts(this.products);
+                    }
+                });
+
+                // Refresh button
+                document.getElementById('refresh-btn').addEventListener('click', () => {
+                    this.loadProducts();
+                });
+            }
+
+            async loadProducts() {
+                const container = document.getElementById('products-container');
+                
+                try {
+                    container.innerHTML = `
+                        <div class="loading">
+                            <i class="fas fa-spinner fa-spin"></i> Loading products from JSON file...
+                        </div>
+                    `;
+
+                    console.log('📡 Fetching data from products.json...');
+                    
+                    // Load from JSON file
+                    const response = await fetch('./data/products.json');
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to load products: ${response.status}`);
+                    }
+                    
+                    this.products = await response.json();
+                    
+                    console.log('✅ Successfully loaded products:', this.products);
+                    
+                    this.displayProducts(this.products);
+                    this.showNotification('Products loaded successfully!', 'success');
+                    
+                } catch (error) {
+                    console.error('❌ Error loading products:', error);
+                    
+                    container.innerHTML = `
+                        <div class="error">
+                            <h3><i class="fas fa-exclamation-triangle"></i> Failed to load products</h3>
+                            <p>Error: ${error.message}</p>
+                            <p>Make sure the <code>data/products.json</code> file exists.</p>
+                            <button onclick="productManager.loadProducts()" class="refresh-btn">
+                                <i class="fas fa-redo"></i> Try Again
+                            </button>
+                        </div>
+                    `;
+                    
+                    this.showNotification('Failed to load products', 'error');
+                }
+            }
+
+            displayProducts(products) {
+                const container = document.getElementById('products-container');
+                
+                if (products.length === 0) {
+                    container.innerHTML = `
+                        <div class="error">
+                            <h3>No products found</h3>
+                            <p>Try adjusting your search or check the JSON file.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = `
+                    <div class="products-grid">
+                        ${products.map(product => this.createProductCard(product)).join('')}
+                    </div>
+                `;
+            }
+
+            createProductCard(product) {
+                const stars = this.generateStarRating(product.rating);
+                
+                return `
+                    <div class="product-card">
+                        <img src="${product.image}" alt="${product.name}" class="product-image" 
+                             onerror="this.src='https://via.placeholder.com/300x200?text=Image+Not+Found'">
+                        <div class="product-info">
+                            <div class="product-header">
+                                <h3 class="product-name">${product.name}</h3>
+                                <div class="product-price">₹${product.price.toLocaleString()}</div>
+                            </div>
+                            <div class="product-brand">${product.brand}</div>
+                            
+                            <div class="product-specs">
+                                <div class="spec">
+                                    <i class="fas fa-memory"></i>
+                                    <span>${product.specifications.ram}</span>
+                                </div>
+                                <div class="spec">
+                                    <i class="fas fa-hdd"></i>
+                                    <span>${product.specifications.storage}</span>
+                                </div>
+                                <div class="spec">
+                                    <i class="fas fa-camera"></i>
+                                    <span>${product.specifications.camera}</span>
+                                </div>
+                                <div class="spec">
+                                    <i class="fas fa-battery-full"></i>
+                                    <span>${product.specifications.battery}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="rating">
+                                <div class="stars">${stars}</div>
+                                <span class="rating-value">${product.rating}</span>
+                            </div>
+                            
+                            ${product.tags && product.tags.length > 0 ? `
+                                <div class="tags">
+                                    ${product.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            generateStarRating(rating) {
+                let stars = '';
+                const fullStars = Math.floor(rating);
+                const hasHalfStar = rating % 1 >= 0.5;
+                
+                for (let i = 0; i < fullStars; i++) {
+                    stars += '<i class="fas fa-star"></i>';
+                }
+                
+                if (hasHalfStar) {
+                    stars += '<i class="fas fa-star-half-alt"></i>';
+                }
+                
+                const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+                for (let i = 0; i < emptyStars; i++) {
+                    stars += '<i class="far fa-star"></i>';
+                }
+                
+                return stars;
+            }
+
+            handleSearch() {
+                const searchTerm = document.getElementById('search-input').value.toLowerCase();
+                
+                if (!searchTerm) {
+                    this.displayProducts(this.products);
+                    return;
+                }
+
+                const filteredProducts = this.products.filter(product => 
+                    product.name.toLowerCase().includes(searchTerm) ||
+                    product.brand.toLowerCase().includes(searchTerm) ||
+                    (product.tags && product.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
+                );
+
+                this.displayProducts(filteredProducts);
+            }
+
+            showNotification(message, type) {
+                // Remove existing notifications
+                const existing = document.querySelector('.notification');
+                if (existing) existing.remove();
+
+                const notification = document.createElement('div');
+                notification.className = `notification ${type}`;
+                notification.innerHTML = `
+                    <i class="fas fa-${type === 'success' ? 'check' : 'exclamation-triangle'}"></i>
+                    ${message}
+                `;
+
+                document.body.appendChild(notification);
+
+                // Auto remove after 3 seconds
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 3000);
+            }
+        }
+
+        // Initialize the product manager when page loads
+        const productManager = new ProductManager();
+
+        // Debug info
+        console.log('🚀 Test JSON Website Loaded');
+        console.log('📁 This website loads data from: ./data/products.json');
+        console.log('💡 Try editing the JSON file and clicking "Refresh Data"!');
+    </script>
+</body>
+</html>
